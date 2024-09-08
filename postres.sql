@@ -145,4 +145,25 @@ WHERE ship_country = 'USA'
 Домашка2
 SELECT unit_price * units_in_stock AS QU
 FROM products
--- WHERE discontinued <> 0
+WHERE discontinued <> 0
+
+SELECT DISTINCT suppliers.company_name
+FROM suppliers
+JOIN customers USING(country)
+
+SELECT product_name, suppliers.company_name, units_in_stock
+FROM products
+INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id
+ORDER BY units_in_stock DESC
+
+SELECT category_name, SUM(unit_price * units_in_stock)
+FROM products
+JOIN categories ON products.category_id = categories.category_id
+WHERE discontinued <> 1
+GROUP BY category_name
+HAVING SUM(unit_price * units_in_stock) > 5000
+ORDER BY SUM(unit_price * units_in_stock) DESC
+
+SELECT order_id, customer_id, first_name, last_name, title
+FROM orders
+INNER JOIN employees ON orders.employee_id = employees.employee_id
