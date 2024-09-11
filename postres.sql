@@ -167,3 +167,90 @@ ORDER BY SUM(unit_price * units_in_stock) DESC
 SELECT order_id, customer_id, first_name, last_name, title
 FROM orders
 INNER JOIN employees ON orders.employee_id = employees.employee_id
+
+
+SELECT company_name, product_name
+FROM suppliers
+LEFT JOIN products ON products.supplier_id = suppliers.supplier_id
+
+SELECT company_name, order_id
+FROM customers
+LEFT JOIN  orders ON orders.customer_id = customers.customer_id
+WHERE order_id IS NULL
+
+SELECT COUNT(*)
+FROM employees
+LEFT JOIN orders ON orders.employee_id = employees.employee_id
+WHERE order_id IS NULL
+
+SELECT company_name
+FROM suppliers
+WHERE country IN (SELECT DISTINCT country FROM customers)
+
+SELECT DISTINCT suppliers.company_name
+FROM suppliers
+JOIN customers USING(country)
+
+SELECT category_name, SUM(units_in_stock)
+FROM products
+INNER JOIN categories USING(category_id)
+GROUP BY category_name
+ORDER BY SUM(units_in_stock) DESC
+LIMIT (SELECT MIN(product_id) + 4 FROM products)
+
+
+SELECT product_name, units_in_stock
+FROM products
+WHERE units_in_stock > 
+		(SELECT AVG(units_in_stock)
+		FROM products)
+
+ORDER BY units_in_stock
+
+SELECT company_name, contact_name
+FROM customers
+WHERE EXISTS (SELECT customers.customer_id FROM orders
+				WHERE customers.customer_id = customers.customer_id
+				AND freight BETWEEN 50 AND 100)
+
+SELECT company_name, contact_name
+FROM customers
+WHERE not EXISTS(SELECT customer_id FROM orders
+					WHERE customer_id = customer_id
+					AND order_date BETWEEN '1996-07-04' AND '1996-07-05'
+					)
+
+SELECT country, city
+FROM customers
+WHERE EXISTS(SELECT customer_id FROM orders
+				WHERE customer_id = customers.customer_id
+				AND ship_country LIKE 'N%')
+
+
+
+SELECT *
+INTO tmp_customers
+FROM customers
+
+SELECT region
+FROM tmp_customers
+
+
+
+UPDATE tmp_customers
+SET region = 'noname'
+WHERE region IS NULL
+
+CREATE OR REPLACE FUNCTION fix_customer_region() RETURNS void AS $$
+	UPDATE tmp_customers
+	SET region = NULL
+	WHERE region = 'noname_1'
+
+$$ LANGUAGE SQL;
+
+SELECT fix_customer_region()
+
+
+
+
+
